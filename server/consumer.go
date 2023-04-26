@@ -420,7 +420,7 @@ const (
 )
 
 // Helper function to set consumer config defaults from above.
-func setConsumerConfigDefaults(config *ConsumerConfig, lim *JSLimitOpts, accLim *JetStreamAccountLimits) {
+func setConsumerConfigDefaults(config *ConsumerConfig, streamCfg *StreamConfig, lim *JSLimitOpts, accLim *JetStreamAccountLimits) {
 	// Set to default if not specified.
 	if config.DeliverSubject == _EMPTY_ && config.MaxWaiting == 0 {
 		config.MaxWaiting = JSWaitQueueDefaultMax
@@ -451,6 +451,12 @@ func setConsumerConfigDefaults(config *ConsumerConfig, lim *JSLimitOpts, accLim 
 	// if applicable set max request batch size
 	if config.DeliverSubject == _EMPTY_ && config.MaxRequestBatch == 0 && lim.MaxRequestBatch > 0 {
 		config.MaxRequestBatch = lim.MaxRequestBatch
+	}
+	if config.MaxAckPending == 0 {
+		config.MaxAckPending = streamCfg.LimitMaxAckPending
+	}
+	if config.InactiveThreshold == 0 {
+		config.InactiveThreshold = streamCfg.LimitInactiveThreshold
 	}
 }
 
@@ -544,6 +550,12 @@ func checkConsumerCfg(
 	}
 	if accLim.MaxAckPending > 0 && config.MaxAckPending > accLim.MaxAckPending {
 		return NewJSConsumerMaxPendingAckExcessError(accLim.MaxAckPending)
+	}
+	if cfg.LimitMaxAckPending > 0 && config.MaxAckPending > cfg.LimitMaxAckPending {
+		return NewJSConsumerMaxPendingAckExcessError(cfg.LimitMaxAckPending)
+	}
+	if cfg.LimitInactiveThreshold > 0 && config.InactiveThreshold > cfg.LimitInactiveThreshold {
+		return NewJSConsumerInactiveThresholdExcessError() // cfg.LimitInactiveThreshold)
 	}
 
 	// Direct need to be non-mapped ephemerals.
@@ -707,7 +719,7 @@ func (mset *stream) addConsumerWithAssignment(config *ConsumerConfig, oname stri
 
 	srvLim := &s.getOpts().JetStreamLimits
 	// Make sure we have sane defaults.
-	setConsumerConfigDefaults(config, srvLim, &selectedLimits)
+	setConsumerConfigDefaults(config, &mset.cfg, srvLim, &selectedLimits)
 
 	if err := checkConsumerCfg(config, srvLim, &cfg, acc, &selectedLimits, isRecovering); err != nil {
 		return nil, err
