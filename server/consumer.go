@@ -555,7 +555,7 @@ func checkConsumerCfg(
 		return NewJSConsumerMaxPendingAckExcessError(cfg.LimitMaxAckPending)
 	}
 	if cfg.LimitInactiveThreshold > 0 && config.InactiveThreshold > cfg.LimitInactiveThreshold {
-		return NewJSConsumerInactiveThresholdExcessError() // cfg.LimitInactiveThreshold)
+		return NewJSConsumerInactiveThresholdExcessError(cfg.LimitInactiveThreshold)
 	}
 
 	// Direct need to be non-mapped ephemerals.
