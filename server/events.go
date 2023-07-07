@@ -2712,6 +2712,10 @@ func (s *Server) reloadConfig(sub *subscription, c *client, _ *Account, subject,
 	})
 }
 
+func (s *Server) kickClient(sub *subscription, c *client, _ *Account, subject, reply string, hdr, msg []byte) {
+
+}
+
 // Helper to grab account name for a client.
 func accForClient(c *client) string {
 	if c.acc != nil {
