@@ -4232,15 +4232,6 @@ func (s *Server) DisconnectClientByID(id uint64) {
 	}
 }
 
-// Disconnects a client by name
-func (s *Server) DisconnectClientsByName(name string) {
-	for _, c := range s.clients {
-		if c.GetName() == name {
-			s.DisconnectClientByID(c.cid)
-		}
-	}
-}
-
 func (s *Server) LDMClientByID(id uint64) {
 	info := s.copyInfo()
 	info.LameDuckMode = true
@@ -4252,13 +4243,5 @@ func (s *Server) LDMClientByID(id uint64) {
 		// valid or not, so don't duplicate tests here.
 		s.Debugf("sending LDM info to cid=%d", id)
 		c.enqueueProto(c.generateClientInfoJSON(info))
-	}
-}
-
-func (s *Server) LDMClientsByName(name string) {
-	for _, c := range s.clients {
-		if c.GetName() == name {
-			s.LDMClientByID(c.cid)
-		}
 	}
 }

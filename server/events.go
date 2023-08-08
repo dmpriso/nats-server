@@ -2726,13 +2726,11 @@ func (s *Server) reloadConfig(sub *subscription, c *client, _ *Account, subject,
 }
 
 type kickClientReq struct {
-	Name string `json:"name"`
-	Id   uint64 `json:"id"`
+	ID uint64 `json:"id"`
 }
 
 type ldmClientReq struct {
-	Name string `json:"name"`
-	Id   uint64 `json:"id"`
+	ID uint64 `json:"id"`
 }
 
 func (s *Server) kickClient(_ *subscription, _ *client, _ *Account, subject, reply string, hdr, msg []byte) {
@@ -2741,10 +2739,8 @@ func (s *Server) kickClient(_ *subscription, _ *client, _ *Account, subject, rep
 		s.sys.client.Errorf("Error unmarshalling kick client request: %v", err)
 		return
 	}
-	if req.Id != 0 {
-		s.DisconnectClientByID(req.Id)
-	} else if req.Name != _EMPTY_ {
-		s.DisconnectClientsByName(req.Name)
+	if req.ID != 0 {
+		s.DisconnectClientByID(req.ID)
 	}
 }
 
@@ -2754,10 +2750,8 @@ func (s *Server) ldmClient(_ *subscription, _ *client, _ *Account, subject, repl
 		s.sys.client.Errorf("Error unmarshalling kick client request: %v", err)
 		return
 	}
-	if req.Id != 0 {
-		s.LDMClientByID(req.Id)
-	} else if req.Name != _EMPTY_ {
-		s.LDMClientsByName(req.Name)
+	if req.ID != 0 {
+		s.LDMClientByID(req.ID)
 	}
 }
 
